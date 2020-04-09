@@ -1,5 +1,4 @@
 buildscript {
-    
 
     repositories {
         mavenLocal()
@@ -41,6 +40,16 @@ project(":desktop") {
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
         
+    }
+
+    jar {
+        manifest {
+            attributes "Main-Class": "com.topdowncar.game.desktop.DesktopLauncher"
+        }
+
+        from {
+            configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        }
     }
 }
 
