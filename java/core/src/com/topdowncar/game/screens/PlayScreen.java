@@ -66,7 +66,6 @@ public class PlayScreen implements Screen {
         handleInputKeyboard();
         update(delta);
         draw();
-
     }
 
     /**

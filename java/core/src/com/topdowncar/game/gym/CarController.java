@@ -22,11 +22,11 @@ public class CarController {
     // TODO: implement obs, rew, done
     public void control() {
         // send observation, reward, done
-        io.printOutput("TODO: implement obs, rew, done");
+        io.printMessage("TODO: implement obs, rew, done");
 
         // read action -> act
         // shape: vertical <space> horizontal: 0 0 means stay as it is, 1 -1 means steer right while reversing
-        String input = io.readInput();
+        String input = io.readMessage();
         int vertical = Integer.parseInt(input.split(" ")[0]);
         int horizontal = Integer.parseInt(input.replace("\n", "").split(" ")[1]);
 

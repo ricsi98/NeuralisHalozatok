@@ -1,27 +1,19 @@
+import socket
 import sys
-import random
 
-DEBUG = True
+# Create a TCP/IP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+# Connect the socket to the port where the server is listening
+server_address = ('localhost', 34343)
+print('connecting to %s port %s' % server_address)
+sock.connect(server_address)
+print('connected')
 
-class IO(object):
+while True:
+    message = '1 1\n'
+    print('sending')
+    sock.sendall(message.encode(encoding='UTF-8'))
 
-    def ReadInput(self):
-        i = input()
-        if DEBUG:
-            print('incoming: ' + str(i), file=sys.stderr)
-            sys.stderr.flush()
-        return i
-
-    def PrintOutput(self, output, idx=0):
-        if DEBUG:
-            print(str(idx) + ' sending: ' + str(output), file=sys.stderr)
-            sys.stderr.flush()
-        print(output)
-        sys.stdout.flush()
-
-if __name__ == "__main__":
-    io = IO()    
-    while True:
-        #io.PrintOutput(random.choice(['1 1', '1 0', '1 -1', '0 1', '0 0', '0 -1', '-1 1', '-1 0', '-1 -1']))
-        io.PrintOutput('1 0')
+    data = sock.recv(64)
+    print('received "%s"' % data.decode(encoding='UTF-8'))

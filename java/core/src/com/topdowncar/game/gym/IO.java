@@ -1,45 +1,70 @@
 package com.topdowncar.game.gym;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class IO {
 
+    private static final boolean DEBUG = true;
+    private static final int PORT = 34343;
     private static IO instance = null;
-    private Scanner scanner;
-    private Writer writer;
+    private Socket clientSocket;
+    private ServerSocket serverSocket;
+    private PrintWriter out;
+    private BufferedReader in;
 
     public IO() {
-        this.scanner = new Scanner(System.in);
-        this.writer = new PrintWriter(System.out);
+        try {
+            ServerSocket serverSocket =
+                    new ServerSocket(PORT);
+            Socket clientSocket = serverSocket.accept();
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        } catch (IOException e) {
+            System.out.println("Exception caught when trying to listen on port "
+                    + PORT + " or listening for a connection");
+            System.out.println(e.getMessage());
+        }
     }
 
     public static IO getInstance() {
-        if (IO.instance == null) {
-            IO.instance = new IO();
+        if (instance == null) {
+            instance = new IO();
         }
-        return IO.instance;
+        return instance;
     }
 
-
-    public String readInput() {
-        return scanner.nextLine();
+    public void printMessage(String msg) {
+        if (DEBUG) {
+            System.out.println("Sending message: " + msg);
+        }
+        out.println(msg);
     }
 
-    public void printOutput(String output) {
+    public String readMessage() {
+        String msg = null;
         try {
-            this.writer.append(output);
-            this.writer.flush();
-        } catch (Exception e) {
+            msg = in.readLine();
+            if (DEBUG) {
+                System.out.println("Got message: " + msg);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        return msg;
     }
 
     public void dispose() {
         try {
-            this.writer.close();
-            this.scanner.close();
-        } catch (Exception e) {
+            in.close();
+            out.close();
+            serverSocket.close();
+            clientSocket.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
