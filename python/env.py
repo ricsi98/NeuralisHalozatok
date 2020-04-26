@@ -1,5 +1,10 @@
-import sys, subprocess, time, socket
+import socket
+import subprocess
+import sys
+import time
+
 import gym
+import numpy as np
 
 SERVER_ADDRESS = ('localhost', 34343)
 
@@ -43,8 +48,10 @@ class CarEnv(gym.Env):
         self.io.sendMessage(msg)
         answ = self.io.readMessage()
 
-        obs = [float(x) for x in answ.split(" ")[:-1]]
-        return obs
+        parsed = [float(x) for x in answ.split(" ")]
+        obs = np.array(parsed[:-1])
+        reward = parsed[-1]
+        return obs, reward
 
 if __name__ == '__main__':
     try:

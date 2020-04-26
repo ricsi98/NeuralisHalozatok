@@ -1,5 +1,8 @@
 package com.topdowncar.game.tools;
 
+import com.topdowncar.game.screens.PlayScreen;
+import com.badlogic.gdx.math.Vector2;
+
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -18,6 +21,7 @@ public class MapLoader implements Disposable {
 
     private static final String MAP_WALL = "wall";
     private static final String MAP_PLAYER = "player";
+    private static final String MAP_TARGET = "target";
     private static final float OBJECT_DENSITY = 1f;
     private static final float PLAYER_DENSITY = 0.4f;
 
@@ -29,7 +33,7 @@ public class MapLoader implements Disposable {
      * Main MapLoader constructor
      * @param world {@link com.topdowncar.game.screens.PlayScreen#mWorld} used to control and add physics objects
      */
-    public MapLoader(World world) {
+    public MapLoader(World world, PlayScreen screen) {
         this.mWorld = world;
         mMap = new TmxMapLoader().load(MAP_NAME);
 
@@ -41,6 +45,10 @@ public class MapLoader implements Disposable {
                     new Vector2(rectangle.getWidth() / 2, rectangle.getHeight() / 2), // size
                     BodyDef.BodyType.StaticBody, mWorld, OBJECT_DENSITY, false);
         }
+
+        final RectangleMapObject target = mMap.getLayers().get(MAP_TARGET).getObjects().getByType(RectangleMapObject.class).get(0);
+        Rectangle targetRectangle = target.getRectangle();
+        screen.setTarget(new Vector2(targetRectangle.getX(), targetRectangle.getY()));
     }
 
     /**

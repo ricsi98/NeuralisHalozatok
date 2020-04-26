@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.topdowncar.game.entities.Car;
 import com.topdowncar.game.tools.MapLoader;
 import com.topdowncar.game.gym.CarController;
+import com.badlogic.gdx.math.Vector2;
 
 import static com.topdowncar.game.Constants.DEFAULT_ZOOM;
 import static com.topdowncar.game.Constants.GRAVITY;
@@ -38,6 +39,7 @@ public class PlayScreen implements Screen {
     private final Car mPlayer;
     private final MapLoader mMapLoader;
     private final CarController carController;
+    private Vector2 target;
 
     /**
      * Base constructor for PlayScreen
@@ -49,14 +51,18 @@ public class PlayScreen implements Screen {
         mCamera = new OrthographicCamera();
         mCamera.zoom = DEFAULT_ZOOM;
         mViewport = new FitViewport(RESOLUTION.x / PPM, RESOLUTION.y / PPM, mCamera);
-        mMapLoader = new MapLoader(mWorld);
+        mMapLoader = new MapLoader(mWorld, this);
         mPlayer = new Car(35.0f, 0.3f, 80, mMapLoader, Car.DRIVE_2WD, mWorld);
-        carController = new CarController(mPlayer);
+        carController = new CarController(mPlayer, target);
     }
 
     @Override
     public void show() {
 
+    }
+
+    public void setTarget(Vector2 target) {
+        this.target = target;
     }
 
     @Override

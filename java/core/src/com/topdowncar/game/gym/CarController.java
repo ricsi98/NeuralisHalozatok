@@ -3,6 +3,8 @@ package com.topdowncar.game.gym;
 import com.topdowncar.game.gym.IO;
 import com.topdowncar.game.entities.Car;
 
+import com.badlogic.gdx.math.Vector2;
+
 import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_BACKWARD;
 import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_FORWARD;
 import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_NONE;
@@ -13,13 +15,19 @@ import static com.topdowncar.game.entities.Car.TURN_DIRECTION_RIGHT;
 public class CarController {
     private Car car;
     private IO io;
+    private Vector2 target;
     private static final boolean DEBUG = false;
 
-    public CarController(Car car) {
+    public CarController(Car car, Vector2 target) {
         this.car = car;
+        this.target = target;
         if (!DEBUG) {
             this.io = IO.getInstance();
         }
+    }
+
+    public float getReward() {
+        return 1.0f / car.getBody().getPosition().dst(target);
     }
 
     // TODO: implement obs, rew, done
@@ -27,6 +35,7 @@ public class CarController {
         if (DEBUG) {
             car.getSensorDistances(4);
             car.setDriveDirection(DRIVE_DIRECTION_FORWARD);
+            System.out.println("REWARD " + getReward() + " pos " + car.getBody().getPosition() + " target " + target);
             return;
         }
         // send observation, reward, done
@@ -34,6 +43,7 @@ public class CarController {
         for (float f : car.getSensorDistances(8)) {
             out = out + f + " ";
         }
+        out = out + getReward();
         io.printMessage(out);
 
         // read action -> act

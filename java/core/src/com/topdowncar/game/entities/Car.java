@@ -79,6 +79,7 @@ public class Car extends BodyHolder {
     float currDist;
 
     public float[] getSensorDistances(int N) {
+        System.out.println(getBody().getPosition());
         float[] distances = new float[N];
         for (int i = 0; i < N; i++) {
             double angle = Math.PI / N * i + getBody().getAngle();
