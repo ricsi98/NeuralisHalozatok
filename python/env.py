@@ -37,8 +37,10 @@ class CarEnv(gym.Env):
         return self.io.readMessage()
 
     def dispose(self):
-        self.javaProc.kill()
-        self.io.dispose()
+        if self.javaProc is not None:
+            self.javaProc.kill()
+        if self.io is not None:
+            self.io.dispose()
 
     def step(self, action):
         if self.javaProc is None or self.io is None:
@@ -53,13 +55,4 @@ class CarEnv(gym.Env):
         reward = parsed[-1]
         return obs, reward
 
-if __name__ == '__main__':
-    try:
-        env = CarEnv()
-        for j in range(1):
-            env.reset()
-            for i in range(500):
-                print(env.step([1, 0]))
-    finally:
-        print('cleanup')
-        env.dispose()
+
