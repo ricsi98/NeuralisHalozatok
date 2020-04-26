@@ -42,15 +42,17 @@ class CarEnv(gym.Env):
         msg = str(action[0]) + " "  +str(action[1]) + "\n"
         self.io.sendMessage(msg)
         answ = self.io.readMessage()
-        print(answ)
+
+        obs = [float(x) for x in answ.split(" ")[:-1]]
+        return obs
 
 if __name__ == '__main__':
     try:
         env = CarEnv()
-        for j in range(5):
+        for j in range(1):
             env.reset()
-            for i in range(100):
-                env.step([1, 1 if j % 2 == 0 else 0])
+            for i in range(500):
+                print(env.step([1, 0]))
     finally:
         print('cleanup')
         env.dispose()

@@ -13,16 +13,28 @@ import static com.topdowncar.game.entities.Car.TURN_DIRECTION_RIGHT;
 public class CarController {
     private Car car;
     private IO io;
+    private static final boolean DEBUG = false;
 
     public CarController(Car car) {
         this.car = car;
-        this.io = IO.getInstance();
+        if (!DEBUG) {
+            this.io = IO.getInstance();
+        }
     }
 
     // TODO: implement obs, rew, done
     public void control() {
+        if (DEBUG) {
+            car.getSensorDistances(4);
+            car.setDriveDirection(DRIVE_DIRECTION_FORWARD);
+            return;
+        }
         // send observation, reward, done
-        io.printMessage("TODO: implement obs, rew, done");
+        String out = "";
+        for (float f : car.getSensorDistances(8)) {
+            out = out + f + " ";
+        }
+        io.printMessage(out);
 
         // read action -> act
         // shape: vertical <space> horizontal: 0 0 means stay as it is, 1 -1 means steer right while reversing

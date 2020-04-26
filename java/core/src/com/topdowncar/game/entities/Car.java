@@ -10,6 +10,11 @@ import com.topdowncar.game.BodyHolder;
 import com.topdowncar.game.screens.PlayScreen;
 import com.topdowncar.game.tools.MapLoader;
 
+import java.util.ArrayList;
+import java.util.List;
+import com.badlogic.gdx.physics.box2d.RayCastCallback;
+import com.badlogic.gdx.physics.box2d.Fixture;
+
 import static com.topdowncar.game.Constants.PPM;
 
 
@@ -39,6 +44,8 @@ public class Car extends BodyHolder {
     private static final float BREAK_POWER = 1.3f;
     private static final float REVERSE_POWER = 0.5f;
 
+    private static final double SENSOR_DISTANCE = 100.0;
+
     private int mDriveDirection = DRIVE_DIRECTION_NONE;
     private int mTurnDirection = TURN_DIRECTION_NONE;
 
@@ -67,6 +74,48 @@ public class Car extends BodyHolder {
         getBody().setLinearDamping(LINEAR_DAMPING);
         getBody().getFixtureList().get(0).setRestitution(RESTITUTION);
         createWheels(world, wheelDrive);
+    }
+
+    float currDist;
+
+    public float[] getSensorDistances(int N) {
+        float[] distances = new float[N];
+        for (int i = 0; i < N; i++) {
+            double angle = Math.PI / N * i + getBody().getAngle();
+            final Vector2 from = getBody().getPosition();
+            final int index = i;
+            Vector2 dir = new Vector2((float)(Math.cos(angle) * SENSOR_DISTANCE), (float)(Math.sin(angle) * SENSOR_DISTANCE));
+            Vector2 to = new Vector2(from);
+            to.add(dir);
+
+            currDist = Float.MAX_VALUE;
+
+            RayCastCallback rayCastCallback = new RayCastCallback() {
+                @Override
+                public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+                    for (Fixture f : getBody().getFixtureList()) {
+                        if (fixture == f) {
+                            return -1;
+                        }
+                    }
+                    currDist = point.dst(from);
+                    return 0;
+                }
+            };
+
+            /*shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.line(rayStart,rayEnd);
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.end();*/
+
+            getBody().getWorld().rayCast(rayCastCallback, from, to);
+            distances[i] = currDist;
+        }
+        /*for(double d : distances) {
+            System.out.println("DIST " + d);
+        }*/
+        return distances;
     }
 
     /**
