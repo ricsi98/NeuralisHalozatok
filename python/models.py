@@ -1,9 +1,10 @@
-import random
 import itertools
+import random
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 ACTIONS = [x for x in itertools.product([-1,0,1], [-1,0,1])]
 

@@ -60,4 +60,3 @@ class CarEnv(gym.Env):
         reward = parsed[-1]
         return obs, reward
 
-

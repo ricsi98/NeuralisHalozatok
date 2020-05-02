@@ -1,7 +1,7 @@
-from env import CarEnv
 import torch
-from models import *
 
+from env import CarEnv
+from models import *
 
 if __name__ == '__main__':
     try:
