@@ -4,15 +4,18 @@ import torch.nn.functional as F
 from env import CarEnv
 import numpy as np
 import random
+import itertools
+
+ACTIONS = [x for x in itertools.product([-1,0,1], [-1,0,1])]
 
 class DQN(nn.Module):
-    def __init__(self, inputSize, hiddenLayers):
-        self.layers = [nn.Linear(inputSize, [hiddenLayers[0]])] # input
-        for i, l in enumerate(hiddenLayers):
-            if l != hiddenLayers[-1]:
-                self.layers.append(nn.Linear(l, hiddenLayers[i+1]))
-            else:
-                self.layers.append(nn.Linear(l, 2)) # output
+    def __init__(self, layers):
+        super(DQN, self).__init__()
+        self.layers = []
+        for i, l in enumerate(layers[:-1]):
+            self.layers.append(nn.Linear(l,layers[i+1]).double())
+            self.add_module("layer"+str(i), self.layers[-1])
+        
     
     def forward(self, x):
         for l in self.layers:
@@ -24,16 +27,17 @@ class DQN(nn.Module):
 
     def getAction(self, obs, epsilon):
         if np.random.uniform() < epsilon:
-            return np.random.uniform(2) * 2 - np.array([1, 1])
-        return forward(obs)
+            return random.choice(ACTIONS)
+        return ACTIONS[torch.multinomial(self.forward(obs), 1).item()]
 
 if __name__ == '__main__':
     try:
         env = CarEnv()
+        agent = DQN([8,16,4,9])
         for j in range(1):
-            env.reset()
+            obs, reward = env.reset()
             for i in range(500):
-                print(env.step([1, 0]))
+                obs, reward = env.step(agent.getAction(torch.tensor(obs), 0))
     finally:
         print('cleanup')
         env.dispose()

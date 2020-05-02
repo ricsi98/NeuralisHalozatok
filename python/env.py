@@ -30,11 +30,16 @@ class CarEnv(gym.Env):
 
     def reset(self):
         if self.javaProc is not None: self.javaProc.kill()
-        self.javaProc = subprocess.Popen('java -jar desktop-1.0.jar')
+        self.javaProc = subprocess.Popen('java -jar desktop-1.0.jar', shell=True)
         time.sleep(2)
         if self.io is not None: self.io.dispose()
         self.io = IO()
-        return self.io.readMessage()
+        answ = self.io.readMessage()
+
+        parsed = [float(x) for x in answ.split(" ")]
+        obs = np.array(parsed[:-1])
+        reward = parsed[-1]
+        return obs, reward
 
     def dispose(self):
         if self.javaProc is not None:
