@@ -1,5 +1,6 @@
 import socket
 import subprocess
+from subprocess import DEVNULL
 import sys
 import time
 
@@ -17,7 +18,7 @@ class IO:
         self.sock.sendall(msg.encode(encoding='UTF-8'))
 
     def readMessage(self):
-        return self.sock.recv(128).decode(encoding='UTF-8')
+        return self.sock.recv(256).decode(encoding='UTF-8')
 
     def dispose(self):
         self.sock.close()
@@ -30,7 +31,7 @@ class CarEnv(gym.Env):
 
     def reset(self):
         if self.javaProc is not None: self.javaProc.kill()
-        self.javaProc = subprocess.Popen('java -jar desktop-1.0.jar', shell=True)
+        self.javaProc = subprocess.Popen('java -jar desktop-1.0.jar', shell=True, stdout=DEVNULL, stderr=DEVNULL)
         time.sleep(2)
         if self.io is not None: self.io.dispose()
         self.io = IO()

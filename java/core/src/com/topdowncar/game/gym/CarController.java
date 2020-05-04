@@ -43,7 +43,9 @@ public class CarController {
         for (float f : car.getSensorDistances(8)) {
             out = out + f + " ";
         }
-        out = out + getReward();
+        Vector2 dir = target.sub(car.getBody().getPosition()).nor();
+        out = out + dir.x + " " + dir.y + " " + getReward() + "\n";
+        System.out.println("SENDING THIS:" + out);
         io.printMessage(out);
 
         // read action -> act

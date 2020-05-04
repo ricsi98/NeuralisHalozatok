@@ -22,10 +22,21 @@ class DQN(nn.Module):
             x = F.relu(l(x))
         return x
 
-    def learn(self, episode):
-        pass
+    def learn(self, episode, optimizer, gamma):
+        loss = nn.MSELoss()
+        for i, j in enumerate(episode):
+            obs, action, reward, obs_ = j
+            action = ACTIONS.index(action)
+            optimizer.zero_grad()
+            y_ = self.forward(obs)
+            target = y_.clone()
+            target[action] = reward if j == len(episode) else reward + gamma *torch.max(self.forward(obs_))
+            target.detach()
+            L = loss(y_, target)
+            L.backward()
+            optimizer.step()
 
     def getAction(self, obs, epsilon):
         if np.random.uniform() < epsilon:
             return random.choice(ACTIONS)
-        return ACTIONS[torch.multinomial(self.forward(obs), 1).item()]
+        return ACTIONS[torch.argmax(self.forward(obs), 1).item()]
