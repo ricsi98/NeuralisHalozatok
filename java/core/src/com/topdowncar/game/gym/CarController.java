@@ -1,6 +1,6 @@
 package com.topdowncar.game.gym;
 
-import com.topdowncar.game.gym.IO;
+import com.topdowncar.game.gym.*;
 import com.topdowncar.game.entities.Car;
 
 import com.badlogic.gdx.math.Vector2;
@@ -16,18 +16,16 @@ public class CarController {
     private Car car;
     private IO io;
     private Vector2 target;
+    private RewardModel rewardModel;
     private static final boolean DEBUG = false;
 
-    public CarController(Car car, Vector2 target) {
+    public CarController(Car car, Vector2 target, RewardModel rewardModel) {
         this.car = car;
+        this.rewardModel = rewardModel;
         this.target = target;
         if (!DEBUG) {
             this.io = IO.getInstance();
         }
-    }
-
-    public float getReward() {
-        return 1.0f / car.getBody().getPosition().dst(target);
     }
 
     // TODO: implement obs, rew, done
@@ -35,7 +33,7 @@ public class CarController {
         if (DEBUG) {
             car.getSensorDistances(4);
             car.setDriveDirection(DRIVE_DIRECTION_FORWARD);
-            System.out.println("REWARD " + getReward() + " pos " + car.getBody().getPosition() + " target " + target);
+            System.out.println("REWARD " + rewardModel.getReward() + " pos " + car.getBody().getPosition() + " target " + target);
             return;
         }
         // send observation, reward, done
@@ -44,7 +42,7 @@ public class CarController {
             out = out + f + " ";
         }
         Vector2 dir = target.sub(car.getBody().getPosition()).nor();
-        out = out + dir.x + " " + dir.y + " " + getReward() + "\n";
+        out = out + dir.x + " " + dir.y + " " + rewardModel.getReward() + "\n";
         System.out.println("SENDING THIS:" + out);
         io.printMessage(out);
 

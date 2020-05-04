@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.topdowncar.game.entities.Car;
 import com.topdowncar.game.tools.MapLoader;
-import com.topdowncar.game.gym.CarController;
+import com.topdowncar.game.gym.*;
 import com.badlogic.gdx.math.Vector2;
 
 import static com.topdowncar.game.Constants.DEFAULT_ZOOM;
@@ -53,7 +53,9 @@ public class PlayScreen implements Screen {
         mViewport = new FitViewport(RESOLUTION.x / PPM, RESOLUTION.y / PPM, mCamera);
         mMapLoader = new MapLoader(mWorld, this);
         mPlayer = new Car(35.0f, 0.3f, 80, mMapLoader, Car.DRIVE_2WD, mWorld);
-        carController = new CarController(mPlayer, target);
+        RewardModel rm = new RewardModel(mPlayer, this.target);
+        mWorld.setContactListener(rm);
+        carController = new CarController(mPlayer, target, rm);
     }
 
     @Override
