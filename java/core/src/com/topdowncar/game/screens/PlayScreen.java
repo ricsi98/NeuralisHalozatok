@@ -87,7 +87,7 @@ public class PlayScreen implements Screen {
             mCamera.zoom += CAMERA_ZOOM;
         }
 
-        this.carController.control();
+        this.carController.control(mCamera);
     }
 
     /**

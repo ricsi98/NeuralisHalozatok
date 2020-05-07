@@ -5,6 +5,9 @@ import com.topdowncar.game.entities.Car;
 
 import com.badlogic.gdx.math.Vector2;
 
+
+import com.badlogic.gdx.graphics.OrthographicCamera;
+
 import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_BACKWARD;
 import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_FORWARD;
 import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_NONE;
@@ -29,16 +32,16 @@ public class CarController {
     }
 
     // TODO: implement obs, rew, done
-    public void control() {
+    public void control(final OrthographicCamera mCamera) {
         if (DEBUG) {
-            car.getSensorDistances(4);
+            car.getSensorDistances(4, mCamera);
             car.setDriveDirection(DRIVE_DIRECTION_FORWARD);
             System.out.println("REWARD " + rewardModel.getReward() + " pos " + car.getBody().getPosition() + " target " + target);
             return;
         }
         // send observation, reward, done
         String out = "";
-        for (float f : car.getSensorDistances(8)) {
+        for (float f : car.getSensorDistances(8, mCamera)) {
             out = out + f + " ";
         }
         Vector2 dir = target.sub(car.getBody().getPosition()).nor();
