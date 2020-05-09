@@ -19,6 +19,8 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
@@ -113,25 +115,29 @@ public class Car extends BodyHolder {
                 }
             };
 
-            Vector2 rayStart = from;
-            Vector2 vec = new Vector2(20,20);
-            Vector2 rayEnd = rayStart.add(vec.x, vec.y);
-            Vector2 rayEnd2 = new Vector2(rayStart.x+20, rayStart.y+20);
-            Vector2 rayEnd3 = new Vector2(rayStart.x+vec.x, rayStart.y+vec.y);
+
+
+
+            getBody().getWorld().rayCast(rayCastCallback, from, to);
+
+
+            Vector2 rayStart = new Vector2(from);
+            Vector2 direction = new Vector2(dir);
+            direction.scl(currDist/direction.len());
+            Vector2 rayEnd = new Vector2(rayStart);
+            rayEnd.add(direction);
+
 
             shapeRenderer.setProjectionMatrix(mCamera.combined);
             shapeRenderer.begin(ShapeType.Line);
-            shapeRenderer.setColor(Color.RED);
-            shapeRenderer.rect(getBody().getPosition().x, getBody().getPosition().y, 20, 20);
 
             shapeRenderer.setColor(Color.BLUE);
-            shapeRenderer.line(rayStart.x, rayStart.y, rayEnd2.x, rayEnd2.y);
-            shapeRenderer.line(rayStart.x, rayStart.y, rayStart.x+20, rayStart.y+20);
+            shapeRenderer.line(rayStart.x, rayStart.y, rayEnd.x, rayEnd.y);
             shapeRenderer.end();
-
-            getBody().getWorld().rayCast(rayCastCallback, from, to);
             distances[i] = currDist;
+
         }
+
         /*for(double d : distances) {
             System.out.println("DIST " + d);
         }*/
