@@ -30,7 +30,7 @@ class DQN(nn.Module):
             optimizer.zero_grad()
             y_ = self.forward(obs)
             target = y_.clone()
-            target[action] = reward if j == len(episode) else reward + gamma *torch.max(self.forward(obs_))
+            target[action] = reward if j == len(episode) else reward + gamma * torch.max(self.forward(obs_))
             target.detach()
             L = loss(y_, target)
             L.backward()
@@ -39,4 +39,4 @@ class DQN(nn.Module):
     def getAction(self, obs, epsilon):
         if np.random.uniform() < epsilon:
             return random.choice(ACTIONS)
-        return ACTIONS[torch.argmax(self.forward(obs), 1).item()]
+        return ACTIONS[torch.argmax(self.forward(obs)).item()]
