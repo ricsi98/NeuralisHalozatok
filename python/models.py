@@ -39,4 +39,9 @@ class DQN(nn.Module):
     def getAction(self, obs, epsilon):
         if np.random.uniform() < epsilon:
             return random.choice(ACTIONS)
-        return ACTIONS[torch.argmax(self.forward(obs), 1).item()]
+        #return ACTIONS[torch.argmax(self.forward(obs)).item()]
+        out = self.forward(obs)
+        out = torch.max(out, torch.zeros_like(out))
+        out = F.softmax(out)
+        actionIdx = torch.multinomial(out, 1).item()
+        return ACTIONS[actionIdx]

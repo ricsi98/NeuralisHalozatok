@@ -8,7 +8,7 @@ def package(obs, action, reward, obs_):
     return torch.tensor(np.array(obs)), action, reward, torch.tensor(np.array(obs_))
 
 def adaGamma(t):
-    return max(0.1, min(1, 1 - np.log((t + 1) / 10000)))
+    return max(0.1, min(1, 1 - np.log((t + 1) / 1000)))
 
 if __name__ == '__main__':
     memory = []
@@ -20,14 +20,15 @@ if __name__ == '__main__':
             obs, reward = env.reset()
             sumrew = 0
             for i in range(350):
-                action = agent.getAction(torch.tensor(obs), adaGamma(j*100 + i))
+                action = agent.getAction(torch.tensor(obs), 0.2)
                 obs_, reward = env.step(action)
+                print("REW ", reward)
                 sumrew += reward
                 memory.append(package(obs, action, reward, obs_))
             env.dispose()
             agent.learn(memory, opt, 0.9)
             memory = []
-            print('epoch, sum reward, gamma: ', j,sumrew,adaGamma(j*100 + i))
+            print('epoch, sum reward, gamma: ', j,sumrew,adaGamma(j*350 + i))
             if j % 200 == 0:
                 torch.save(agent.state_dict(), 'snapshot' + str(j) + ".pt")
     finally:

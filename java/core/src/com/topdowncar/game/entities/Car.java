@@ -53,7 +53,7 @@ public class Car extends BodyHolder {
     private static final float BREAK_POWER = 1.3f;
     private static final float REVERSE_POWER = 0.5f;
 
-    private static final double SENSOR_DISTANCE = 100.0;
+    private static final float SENSOR_DISTANCE = 30.0f;
 
     private int mDriveDirection = DRIVE_DIRECTION_NONE;
     private int mTurnDirection = TURN_DIRECTION_NONE;
@@ -93,7 +93,7 @@ public class Car extends BodyHolder {
         System.out.println(getBody().getPosition());
         float[] distances = new float[N];
         for (int i = 0; i < N; i++) {
-            double angle = Math.PI / N * i + getBody().getAngle();
+            double angle = 2 * Math.PI / N * i + getBody().getAngle();
             final Vector2 from = getBody().getPosition();
             final int index = i;
             Vector2 dir = new Vector2((float)(Math.cos(angle) * SENSOR_DISTANCE), (float)(Math.sin(angle) * SENSOR_DISTANCE));
@@ -110,6 +110,15 @@ public class Car extends BodyHolder {
                             return -1;
                         }
                     }
+                    for (Wheel w : mAllWheels) {
+                        for (Fixture f : w.getBody().getFixtureList()) {
+                            if (fixture == f) {
+                                return -1;
+                            }
+                        }
+                    }
+
+
                     currDist = point.dst(from);
                     return 0;
                 }
@@ -119,6 +128,8 @@ public class Car extends BodyHolder {
 
 
             getBody().getWorld().rayCast(rayCastCallback, from, to);
+
+            currDist = Math.min(currDist, SENSOR_DISTANCE);
 
 
             Vector2 rayStart = new Vector2(from);
@@ -134,7 +145,8 @@ public class Car extends BodyHolder {
             shapeRenderer.setColor(Color.BLUE);
             shapeRenderer.line(rayStart.x, rayStart.y, rayEnd.x, rayEnd.y);
             shapeRenderer.end();
-            distances[i] = currDist;
+            // ITT NORMALIZALJUK A HALONAK
+            distances[i] = currDist / SENSOR_DISTANCE;
 
         }
 
