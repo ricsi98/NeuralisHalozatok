@@ -21,11 +21,13 @@ public class CarController {
     private Vector2 target;
     private RewardModel rewardModel;
     private static final boolean DEBUG = false;
+    private Logger logger;
 
     public CarController(Car car, Vector2 target, RewardModel rewardModel) {
         this.car = car;
         this.rewardModel = rewardModel;
         this.target = target;
+        this.logger = new Logger();
         if (!DEBUG) {
             this.io = IO.getInstance();
         }
@@ -39,12 +41,15 @@ public class CarController {
             System.out.println("REWARD " + rewardModel.getReward() + " pos " + car.getBody().getPosition() + " target " + target);
             return;
         }
+
+        logger.log(this.car, this.target);
+
         // send observation, reward, done
         String out = "";
         for (float f : car.getSensorDistances(8, mCamera)) {
             out = out + f + " ";
         }
-        Vector2 dir = target.sub(car.getBody().getPosition()).nor();
+        Vector2 dir = new Vector2(target.x, target.y).sub(car.getBody().getPosition()).nor();
         out = out + dir.x + " " + dir.y + " " + rewardModel.getReward() + "\n";
         System.out.println("SENDING THIS:" + out);
         io.printMessage(out);

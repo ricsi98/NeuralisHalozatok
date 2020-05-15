@@ -24,6 +24,7 @@ class DQN(nn.Module):
 
     def learn(self, episode, optimizer, gamma):
         loss = nn.MSELoss()
+        sumloss = 0
         for i, j in enumerate(episode):
             obs, action, reward, obs_ = j
             action = ACTIONS.index(action)
@@ -33,15 +34,17 @@ class DQN(nn.Module):
             target[action] = reward if j == len(episode) else reward + gamma *torch.max(self.forward(obs_))
             target.detach()
             L = loss(y_, target)
+            sumloss += L.item()
             L.backward()
             optimizer.step()
+        print("SUM LOSS AFTER LEARNING", sumloss)
 
     def getAction(self, obs, epsilon):
         if np.random.uniform() < epsilon:
             return random.choice(ACTIONS)
-        #return ACTIONS[torch.argmax(self.forward(obs)).item()]
-        out = self.forward(obs)
-        out = torch.max(out, torch.zeros_like(out))
-        out = F.softmax(out)
-        actionIdx = torch.multinomial(out, 1).item()
-        return ACTIONS[actionIdx]
+        return ACTIONS[torch.argmax(self.forward(obs)).item()]
+        #out = self.forward(obs)
+        #out = torch.max(out, torch.zeros_like(out))
+        #out = F.softmax(out)
+        #actionIdx = torch.multinomial(out, 1).item()
+        #return ACTIONS[actionIdx]
