@@ -31,9 +31,11 @@ if __name__ == '__main__':
     memory = []
     try:
         env = CarEnv()
-        agent = DQN([10, 64, 128, 256, 64, 32, 9])
+        agent = BootstrappedDQN([10, 256, 256, 256, 64, 9], 50, 3)
         opt = torch.optim.SGD(agent.parameters(), lr=0.01, momentum=0.6)
         for j in range(3000):
+            agent.useRandomHead()
+            print('Using head ' + str(agent.heads.index(agent.selectedHead)))
             obs, reward = env.reset()
             sumrew = 0
             for i in range(350):
