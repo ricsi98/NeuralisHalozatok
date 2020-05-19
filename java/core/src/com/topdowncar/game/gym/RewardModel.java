@@ -2,6 +2,7 @@ package com.topdowncar.game.gym;
 
 
 import com.topdowncar.game.entities.Car;
+import com.topdowncar.game.entities.Wheel;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -23,15 +24,31 @@ public class RewardModel implements ContactListener {
         this.colliding = false;
     }
 
+    private boolean isCarFixture(Fixture f) {
+        for (Fixture cf : car.getBody().getFixtureList()) {
+            if (cf == f) {
+                return true;
+            }
+        }
+        for (Wheel w : car.getWheels()) {
+            for (Fixture cf : w.getBody().getFixtureList()) {
+                if (cf == f) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public void beginContact(Contact contact) {
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
-        for (Fixture f : car.getBody().getFixtureList()) {
-            if (f == fixtureA || f == fixtureB) {
-                colliding = true;
-                return;
-            }
+        boolean aIsCar = isCarFixture(fixtureA);
+        boolean bIsCar = isCarFixture(fixtureB);
+        if (aIsCar ^ bIsCar) {
+            colliding = true;
+            return;
         }
     }
 
@@ -44,10 +61,14 @@ public class RewardModel implements ContactListener {
 
         prevPos = car.getBody().getPosition().cpy();
 
-        if (prevDist < currDist) {
-            return -0.01f;
+        if (currDist < 3.0) {
+            return 1.0f;
         }
-        return currDist < 3.0f ? 1.0f : 0.01f;
+
+        if (prevDist > currDist) {
+            return 0.05f;
+        }
+        return -0.05f;
     }
 
     @Override

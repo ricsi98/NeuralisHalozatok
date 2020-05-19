@@ -17,7 +17,7 @@ class AdaEpsilon:
 
     def getEpsilon(self, addOne=True):
         if addOne: self.t += 1
-        return 1.0 / (self.t/3000 + 1)
+        return 1.0 / (self.t/5000 + 1)
 
 eps = AdaEpsilon()
 
@@ -34,28 +34,30 @@ def getAction(agent, obs):
         return agent.getAction(torch.tensor(obs), eps.getEpsilon())
 
 if __name__ == '__main__':
-    memory = []
-    try:
-        env = CarEnv()
-        agent = DQN([19, 256, 256, 9])#BootstrappedDQN([19, 256, 256, 256, 64, 9], 3, 2)
-        #print("HEADS", len(agent.heads))
-        opt = torch.optim.SGD(agent.parameters(), lr=0.01, momentum=0.6)
-        for j in range(3000):
-            #agent.useRandomHead()
-            #print('Using head ' + str(agent.heads.index(agent.selectedHead)))
-            obs, reward = env.reset()
-            sumrew = 0
-            for i in range(250):
-                action = getAction(agent, obs)#agent.getAction(torch.tensor(obs), 0.2)
-                obs_, reward = env.step(action)
-                sumrew += reward
-                memory.append(package(obs, action, reward, obs_))
+    with open("rewardlog.txt", "w") as log:
+        memory = []
+        try:
+            env = CarEnv()
+            agent = DQN([19, 256, 256, 9])#BootstrappedDQN([19, 256, 256, 256, 64, 9], 3, 2)
+            #print("HEADS", len(agent.heads))
+            opt = torch.optim.SGD(agent.parameters(), lr=0.01, momentum=0.6)
+            for j in range(3000):
+                #agent.useRandomHead()
+                #print('Using head ' + str(agent.heads.index(agent.selectedHead)))
+                obs, reward = env.reset()
+                sumrew = 0
+                for i in range(200):
+                    action = getAction(agent, obs)#agent.getAction(torch.tensor(obs), 0.2)
+                    obs_, reward = env.step(action)
+                    sumrew += reward
+                    memory.append(package(obs, action, reward, obs_))
+                env.dispose()
+                agent.learn(memory, opt, 0.5)
+                memory = []
+                log.write(str(sumrew) + "\n")
+                print('epoch, sum reward, gamma: ', j,sumrew,eps.getEpsilon(False))
+                if j % 200 == 0:
+                    torch.save(agent.state_dict(), 'snapshot' + str(j) + ".pt")
+        finally:
+            print('cleanup')
             env.dispose()
-            agent.learn(memory, opt, 0.9)
-            memory = []
-            print('epoch, sum reward, gamma: ', j,sumrew,eps.getEpsilon(False))
-            if j % 200 == 0:
-                torch.save(agent.state_dict(), 'snapshot' + str(j) + ".pt")
-    finally:
-        print('cleanup')
-        env.dispose()

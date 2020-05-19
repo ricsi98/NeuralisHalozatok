@@ -16,8 +16,8 @@ public class Constants {
 
     public static final Vector2 RESOLUTION = new Vector2(640, 480);
 
-    public static final int VELOCITY_ITERATION = 6;
-    public static final int POSITION_ITERATION = 2;
+    public static final int VELOCITY_ITERATION = 30;
+    public static final int POSITION_ITERATION = 30;
 
     public static final String MAP_NAME = "new_map.tmx";
 
