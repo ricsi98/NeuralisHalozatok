@@ -110,10 +110,10 @@ public class PlayScreen implements Screen {
      * @param delta delta time received from {@link PlayScreen#render(float)} method
      */
     private void update(final float delta) {
-        mPlayer.update(delta);
+        mPlayer.update(delta*10);
         mCamera.position.set(mPlayer.getBody().getPosition(), 0);
         mCamera.update();
-        mWorld.step(delta, VELOCITY_ITERATION, POSITION_ITERATION);
+        mWorld.step(delta*10, VELOCITY_ITERATION, POSITION_ITERATION);
     }
 
     @Override
