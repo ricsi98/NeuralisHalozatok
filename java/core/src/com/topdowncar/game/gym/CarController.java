@@ -5,6 +5,9 @@ import com.topdowncar.game.entities.Car;
 
 import com.badlogic.gdx.math.Vector2;
 
+
+import com.badlogic.gdx.graphics.OrthographicCamera;
+
 import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_BACKWARD;
 import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_FORWARD;
 import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_NONE;
@@ -18,31 +21,40 @@ public class CarController {
     private Vector2 target;
     private RewardModel rewardModel;
     private static final boolean DEBUG = false;
+    private Logger logger;
 
     public CarController(Car car, Vector2 target, RewardModel rewardModel) {
         this.car = car;
         this.rewardModel = rewardModel;
         this.target = target;
+        this.logger = new Logger();
         if (!DEBUG) {
             this.io = IO.getInstance();
         }
     }
 
     // TODO: implement obs, rew, done
-    public void control() {
+    public void control(final OrthographicCamera mCamera) {
         if (DEBUG) {
-            car.getSensorDistances(4);
+            car.getSensorDistances(4, mCamera);
             car.setDriveDirection(DRIVE_DIRECTION_FORWARD);
             System.out.println("REWARD " + rewardModel.getReward() + " pos " + car.getBody().getPosition() + " target " + target);
             return;
         }
+
+        logger.log(this.car, this.target);
+
         // send observation, reward, done
+        // out size: #sensor + 3
         String out = "";
-        for (float f : car.getSensorDistances(8)) {
+        for (float f : car.getSensorDistances(16, mCamera)) {
             out = out + f + " ";
         }
-        Vector2 dir = target.sub(car.getBody().getPosition()).nor();
-        out = out + dir.x + " " + dir.y + " " + rewardModel.getReward() + "\n";
+        Vector2 dir = target.cpy().sub(car.getBody().getPosition()).nor();
+        float angle = car.getBody().getLinearVelocity().angleRad(dir);
+        float distance = target.dst(car.getBody().getPosition());
+        float speed = car.getBody().getLinearVelocity().len();
+        out = out + angle + " " + distance + " " + speed  + " " + rewardModel.getReward() + "\n";
         System.out.println("SENDING THIS:" + out);
         io.printMessage(out);
 

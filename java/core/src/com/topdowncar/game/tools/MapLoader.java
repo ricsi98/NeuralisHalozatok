@@ -1,5 +1,6 @@
 package com.topdowncar.game.tools;
 
+import com.topdowncar.game.Constants;
 import com.topdowncar.game.screens.PlayScreen;
 import com.badlogic.gdx.math.Vector2;
 
@@ -15,6 +16,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 
 import static com.topdowncar.game.Constants.MAP_NAME;
+import static com.topdowncar.game.Constants.PPM;
 
 public class MapLoader implements Disposable {
 
@@ -48,7 +50,7 @@ public class MapLoader implements Disposable {
 
         final RectangleMapObject target = mMap.getLayers().get(MAP_TARGET).getObjects().getByType(RectangleMapObject.class).get(0);
         Rectangle targetRectangle = target.getRectangle();
-        screen.setTarget(new Vector2(targetRectangle.getX(), targetRectangle.getY()));
+        screen.setTarget(new Vector2(targetRectangle.getX() / PPM, targetRectangle.getY() / PPM));
     }
 
     /**

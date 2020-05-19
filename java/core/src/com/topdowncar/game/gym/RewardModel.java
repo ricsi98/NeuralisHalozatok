@@ -13,11 +13,13 @@ public class RewardModel implements ContactListener {
 
     private Car car;
     private Vector2 target;
+    private Vector2 prevPos;
     private boolean colliding;
 
     public RewardModel(Car car, Vector2 target) {
         this.car = car;
         this.target = target;
+        this.prevPos = car.getBody().getPosition().cpy();
         this.colliding = false;
     }
 
@@ -37,7 +39,15 @@ public class RewardModel implements ContactListener {
         if (colliding) {
             return -1.0f;
         }
-        return 1.0f / car.getBody().getPosition().dst(this.target);
+        float prevDist= prevPos.dst(target);
+        float currDist = car.getBody().getPosition().dst(target);
+
+        prevPos = car.getBody().getPosition().cpy();
+
+        if (prevDist < currDist) {
+            return -0.01f;
+        }
+        return currDist < 3.0f ? 1.0f : 0.01f;
     }
 
     @Override

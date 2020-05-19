@@ -3,9 +3,12 @@ package com.topdowncar.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -21,12 +24,6 @@ import static com.topdowncar.game.Constants.POSITION_ITERATION;
 import static com.topdowncar.game.Constants.PPM;
 import static com.topdowncar.game.Constants.RESOLUTION;
 import static com.topdowncar.game.Constants.VELOCITY_ITERATION;
-import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_BACKWARD;
-import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_FORWARD;
-import static com.topdowncar.game.entities.Car.DRIVE_DIRECTION_NONE;
-import static com.topdowncar.game.entities.Car.TURN_DIRECTION_LEFT;
-import static com.topdowncar.game.entities.Car.TURN_DIRECTION_NONE;
-import static com.topdowncar.game.entities.Car.TURN_DIRECTION_RIGHT;
 
 public class PlayScreen implements Screen {
 
@@ -40,6 +37,7 @@ public class PlayScreen implements Screen {
     private final MapLoader mMapLoader;
     private final CarController carController;
     private Vector2 target;
+    private ShapeRenderer shapeRenderer;
 
     /**
      * Base constructor for PlayScreen
@@ -56,6 +54,7 @@ public class PlayScreen implements Screen {
         RewardModel rm = new RewardModel(mPlayer, this.target);
         mWorld.setContactListener(rm);
         carController = new CarController(mPlayer, target, rm);
+        shapeRenderer = new ShapeRenderer();
     }
 
     @Override
@@ -87,7 +86,7 @@ public class PlayScreen implements Screen {
             mCamera.zoom += CAMERA_ZOOM;
         }
 
-        this.carController.control();
+        this.carController.control(mCamera);
     }
 
     /**
@@ -95,6 +94,14 @@ public class PlayScreen implements Screen {
      */
     private void draw() {
         mBatch.setProjectionMatrix(mCamera.combined);
+
+        // draw target
+        shapeRenderer.setProjectionMatrix(mCamera.combined);
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.circle(target.x, target.y, 1f);
+        shapeRenderer.end();
+
         mB2dr.render(mWorld, mCamera.combined);
     }
 
@@ -103,10 +110,10 @@ public class PlayScreen implements Screen {
      * @param delta delta time received from {@link PlayScreen#render(float)} method
      */
     private void update(final float delta) {
-        mPlayer.update(delta);
+        mPlayer.update(delta*10);
         mCamera.position.set(mPlayer.getBody().getPosition(), 0);
         mCamera.update();
-        mWorld.step(delta, VELOCITY_ITERATION, POSITION_ITERATION);
+        mWorld.step(delta*10, VELOCITY_ITERATION, POSITION_ITERATION);
     }
 
     @Override
