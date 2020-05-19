@@ -34,7 +34,6 @@ public class CarController {
         }
     }
 
-    // TODO: implement obs, rew, done
     public void control(final OrthographicCamera mCamera) {
         if (DEBUG) {
             car.getSensorDistances(4, mCamera);
