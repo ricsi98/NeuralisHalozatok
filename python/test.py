@@ -32,6 +32,7 @@ if __name__ == '__main__':
     try:
         env = CarEnv()
         agent = DQN([10, 64, 128, 256, 64, 32, 9])
+        #agent = DQN2([10, 64, 128, 256, 64, 32, 9])
         opt = torch.optim.SGD(agent.parameters(), lr=0.01, momentum=0.6)
         for j in range(3000):
             obs, reward = env.reset()
