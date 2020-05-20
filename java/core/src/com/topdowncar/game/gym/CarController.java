@@ -45,12 +45,16 @@ public class CarController {
         logger.log(this.car, this.target);
 
         // send observation, reward, done
+        // out size: #sensor + 3
         String out = "";
-        for (float f : car.getSensorDistances(8, mCamera)) {
+        for (float f : car.getSensorDistances(16, mCamera)) {
             out = out + f + " ";
         }
-        Vector2 dir = new Vector2(target.x, target.y).sub(car.getBody().getPosition()).nor();
-        out = out + dir.x + " " + dir.y + " " + rewardModel.getReward() + "\n";
+        Vector2 dir = target.cpy().sub(car.getBody().getPosition()).nor();
+        float angle = car.getBody().getLinearVelocity().angleRad(dir);
+        float distance = target.dst(car.getBody().getPosition());
+        float speed = car.getBody().getLinearVelocity().len();
+        out = out + angle + " " + distance + " " + speed  + " " + rewardModel.getReward() + "\n";
         System.out.println("SENDING THIS:" + out);
         io.printMessage(out);
 

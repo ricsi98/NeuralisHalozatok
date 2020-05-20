@@ -3,7 +3,10 @@ import numpy as np
 
 from env import CarEnv
 from models import *
-import keyboard
+
+KEYBOARD = True
+if KEYBOARD:
+    import keyboard
 
 def package(obs, action, reward, obs_):
     return torch.tensor(np.array(obs)), action, reward, torch.tensor(np.array(obs_))
@@ -19,25 +22,32 @@ class AdaEpsilon:
 eps = AdaEpsilon()
 
 def getAction(agent, obs):
-    left = 1 if keyboard.is_pressed('a') else 0
-    right = 1 if keyboard.is_pressed('d') else 0
-    up = 1 if keyboard.is_pressed('w') else 0
-    down = 1 if keyboard.is_pressed('s') else 0
-    if up == 0 and down == 0 and right == 0 and left == 0:
+    if KEYBOARD:
+        left = 1 if keyboard.is_pressed('a') else 0
+        right = 1 if keyboard.is_pressed('d') else 0
+        up = 1 if keyboard.is_pressed('w') else 0
+        down = 1 if keyboard.is_pressed('s') else 0
+        if up == 0 and down == 0 and right == 0 and left == 0:
+            return agent.getAction(torch.tensor(obs), eps.getEpsilon())
+        return (up - down, right - left)
+    else:
         return agent.getAction(torch.tensor(obs), eps.getEpsilon())
-    return (up - down, right - left)
 
 if __name__ == '__main__':
     memory = []
     try:
         env = CarEnv()
-        agent = DQN([10, 64, 128, 256, 64, 32, 9])
-        #agent = DQN2([10, 64, 128, 256, 64, 32, 9])
+        agent = DQN([19, 256, 256, 9])
+        #BootstrappedDQN([19, 256, 256, 256, 64, 9], 3, 2)
+        #agent = DQN2([19, 256, 256, 9])
+        #print("HEADS", len(agent.heads))
         opt = torch.optim.SGD(agent.parameters(), lr=0.01, momentum=0.6)
         for j in range(3000):
+            #agent.useRandomHead()
+            #print('Using head ' + str(agent.heads.index(agent.selectedHead)))
             obs, reward = env.reset()
             sumrew = 0
-            for i in range(350):
+            for i in range(250):
                 action = getAction(agent, obs)#agent.getAction(torch.tensor(obs), 0.2)
                 obs_, reward = env.step(action)
                 sumrew += reward
