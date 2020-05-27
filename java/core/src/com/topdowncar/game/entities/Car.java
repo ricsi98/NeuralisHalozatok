@@ -85,6 +85,10 @@ public class Car extends BodyHolder {
         createWheels(world, wheelDrive);
     }
 
+    public Array<Wheel> getWheels() {
+        return this.mAllWheels;
+    }
+
     float currDist;
 
     ShapeRenderer shapeRenderer = new ShapeRenderer();

@@ -3,6 +3,7 @@ package com.topdowncar.game.gym;
 import com.topdowncar.game.gym.*;
 import com.topdowncar.game.entities.Car;
 
+import java.lang.Math;
 import com.badlogic.gdx.math.Vector2;
 
 
@@ -33,7 +34,6 @@ public class CarController {
         }
     }
 
-    // TODO: implement obs, rew, done
     public void control(final OrthographicCamera mCamera) {
         if (DEBUG) {
             car.getSensorDistances(4, mCamera);
@@ -42,19 +42,29 @@ public class CarController {
             return;
         }
 
-        logger.log(this.car, this.target);
-
         // send observation, reward, done
         // out size: #sensor + 3
         String out = "";
         for (float f : car.getSensorDistances(16, mCamera)) {
             out = out + f + " ";
         }
-        Vector2 dir = target.cpy().sub(car.getBody().getPosition()).nor();
-        float angle = car.getBody().getLinearVelocity().angleRad(dir);
-        float distance = target.dst(car.getBody().getPosition());
+        Vector2 target = this.target.cpy();
+        Vector2 pos = car.getBody().getPosition().cpy();
+        Vector2 vel = car.getBody().getLinearVelocity();
+
+        // calculate angle between direction and desired direction
+        Vector2 desired = target.cpy().sub(pos).nor();
+        float angle = desired.angleRad(vel.cpy().nor());
+
+        // calculate distance to te target
+        float distance = target.dst(pos);
+
+        // calculate speed
         float speed = car.getBody().getLinearVelocity().len();
-        out = out + angle + " " + distance + " " + speed  + " " + rewardModel.getReward() + "\n";
+
+        // calculate reward
+        float reward = rewardModel.getReward();
+        out = out + angle + " " + distance + " " + speed  + " " + reward + "\n";
         System.out.println("SENDING THIS:" + out);
         io.printMessage(out);
 
@@ -63,6 +73,8 @@ public class CarController {
         String input = io.readMessage();
         int vertical = Integer.parseInt(input.split(" ")[0]);
         int horizontal = Integer.parseInt(input.replace("\n", "").split(" ")[1]);
+
+        logger.log(this.car, this.target, reward, horizontal, vertical);
 
         if (vertical == 1) {                                        // UP
             car.setDriveDirection(DRIVE_DIRECTION_FORWARD);
